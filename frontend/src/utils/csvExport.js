@@ -1,0 +1,22 @@
+import Papa from 'papaparse';
+
+export default function exportProductsToCSV(products, filename = 'products_export.csv') {
+  if (!products || products.length === 0) {
+    return false;
+  }
+
+  const csv = Papa.unparse(products);
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  
+  link.setAttribute('href', url);
+  link.setAttribute('download', filename);
+  link.style.visibility = 'hidden';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+  
+  return true;
+}
