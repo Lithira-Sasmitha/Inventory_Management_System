@@ -1,7 +1,8 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useEffect } from 'react';
 import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import { lightTheme, darkTheme } from '../theme';
+import useLocalStorage from '../hooks/useLocalStorage';
 
 const ThemeModeContext = createContext({
   mode: 'light',
@@ -11,19 +12,13 @@ const ThemeModeContext = createContext({
 export const useThemeContext = () => useContext(ThemeModeContext);
 
 export const CustomThemeProvider = ({ children }) => {
-  const [mode, setMode] = useState(() => {
-    const savedMode = localStorage.getItem('theme-mode');
-    if (savedMode) return savedMode;
+  const [mode, setMode] = useLocalStorage('theme-mode', () => {
     const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
     return systemPrefersDark ? 'dark' : 'light';
   });
 
   const toggleTheme = () => {
-    setMode((prevMode) => {
-      const newMode = prevMode === 'light' ? 'dark' : 'light';
-      localStorage.setItem('theme-mode', newMode);
-      return newMode;
-    });
+    setMode((prevMode) => (prevMode === 'light' ? 'dark' : 'light'));
   };
 
   const theme = mode === 'dark' ? darkTheme : lightTheme;
