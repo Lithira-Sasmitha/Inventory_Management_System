@@ -5,19 +5,22 @@ import Dashboard from './pages/Dashboard/Dashboard';
 import Products from './pages/Products/Products';
 import Categories from './pages/Categories/Categories';
 import StockHistory from './pages/StockHistory/StockHistory';
+import { InventoryProvider } from './context/InventoryContext';
 
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Layout />}>
-          <Route index element={<Dashboard />} />
-          <Route path="products" element={<Products />} />
-          <Route path="categories" element={<Categories />} />
-          <Route path="stock-history" element={<StockHistory />} />
-        </Route>
-      </Routes>
-    </BrowserRouter>
+    <InventoryProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Layout />}>
+            <Route index element={<Dashboard />} />
+            <Route path="products" element={<Products />} />
+            <Route path="categories" element={<Categories />} />
+            <Route path="stock-history" element={<StockHistory />} />
+          </Route>
+        </Routes>
+      </BrowserRouter>
+    </InventoryProvider>
   );
 }
 
