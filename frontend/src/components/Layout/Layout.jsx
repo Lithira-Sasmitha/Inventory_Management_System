@@ -62,18 +62,28 @@ export default function Layout({ children }) {
         </Drawer>
       </Box>
 
-      {/* Main Content Area */}
+      {/* Right-Side Dashboard Wrapper */}
       <Box
-        component="main"
         sx={{
           flexGrow: 1,
-          p: { xs: 3, sm: 4 },
+          display: 'flex',
+          flexDirection: 'column',
+          minHeight: '100vh',
           width: { md: `calc(100% - ${DRAWER_WIDTH}px)` },
           mt: { xs: '56px', md: 0 },
           transition: 'all 0.2s ease-in-out',
         }}
       >
-        {children || <Outlet />}
+        {/* Scrollable Main Content Container */}
+        <Box
+          component="main"
+          sx={{
+            flexGrow: 1,
+            p: 0, // Individual page components will control padding now to align PageHeader correctly
+          }}
+        >
+          {children || <Outlet />}
+        </Box>
       </Box>
     </Box>
   );
