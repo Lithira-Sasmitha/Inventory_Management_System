@@ -1,8 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Box, InputBase } from '@mui/material';
-import { Search as SearchIcon } from '@mui/icons-material';
+import { Box } from '@mui/material';
 import ActionButton from '../ActionButton';
+import SearchBar from '../SearchBar';
 
 const STYLES = {
   header: {
@@ -15,37 +15,6 @@ const STYLES = {
     position: 'sticky',
     top: 0,
     zIndex: 100,
-  },
-  searchContainer: {
-    display: 'flex',
-    alignItems: 'center',
-    bgcolor: 'background.paper',
-    borderRadius: '50px',
-    px: 2.5,
-    py: 0.75,
-    width: 380,
-    border: '1px solid',
-    borderColor: 'divider',
-    transition: 'all 0.2s ease-in-out',
-    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.02)',
-    '&:focus-within': {
-      borderColor: 'primary.main',
-      boxShadow: '0 4px 12px rgba(99, 102, 241, 0.08)',
-    },
-  },
-  searchIcon: {
-    color: 'text.secondary',
-    mr: 1.5,
-    fontSize: 20,
-  },
-  searchInput: {
-    width: '100%',
-    fontSize: '0.875rem',
-    color: 'text.primary',
-    '& input::placeholder': {
-      color: 'text.secondary',
-      opacity: 0.7,
-    },
   },
 };
 
@@ -67,19 +36,11 @@ const PageHeader = React.memo(({
   return (
     <Box component="header" sx={STYLES.header}>
       {hasSearch ? (
-        <Box sx={STYLES.searchContainer}>
-          <SearchIcon sx={STYLES.searchIcon} aria-hidden="true" />
-          <InputBase
-            placeholder={searchPlaceholder}
-            value={searchValue}
-            onChange={onSearchChange}
-            inputProps={{
-              'aria-label': searchPlaceholder,
-              type: 'search',
-            }}
-            sx={STYLES.searchInput}
-          />
-        </Box>
+        <SearchBar
+          placeholder={searchPlaceholder}
+          value={searchValue}
+          onChange={onSearchChange}
+        />
       ) : (
         <Box />
       )}

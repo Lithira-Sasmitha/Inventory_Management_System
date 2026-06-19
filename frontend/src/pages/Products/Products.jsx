@@ -1,12 +1,10 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import {
-  Button,
   Dialog,
   DialogContent,
 } from '@mui/material';
 import {
   Add as AddIcon,
-  Download as ExportIcon,
 } from '@mui/icons-material';
 
 import EntityPage from '../../components/common/EntityPage/EntityPage';
@@ -17,25 +15,57 @@ import ProductForm from '../../components/Products/ProductForm';
 import ProductList from '../../components/Products/ProductList';
 import StockModal from '../../components/Products/StockModal';
 import exportProductsToCSV from '../../utils/csvExport';
+import ProductFilterToolbar from '../../components/Products/ProductFilterToolbar';
 
 export default function Products() {
-  const { products, addProduct, updateProduct, deleteProduct, adjustStock } = useInventory();
+  const { products, categories, addProduct, updateProduct, deleteProduct, adjustStock } = useInventory();
   const { searchQuery, handleSearchChange } = useSearch();
 
+  const [selectedCategory, setSelectedCategory] = useState('');
+  const [selectedStockStatus, setSelectedStockStatus] = useState('');
+  const [viewMode, setViewMode] = useState(
+    () => localStorage.getItem('product_view_mode') || 'table'
+  );
   const [formOpen, setFormOpen] = useState(false);
+
+  const handleViewModeChange = useCallback((event, nextView) => {
+    if (nextView !== null) {
+      setViewMode(nextView);
+      localStorage.setItem('product_view_mode', nextView);
+    }
+  }, []);
   const [adjustOpen, setAdjustOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
 
   const filteredProducts = useMemo(() => {
-    if (!searchQuery) return products;
-    const query = searchQuery.toLowerCase().trim();
-    return products.filter(
-      (p) =>
-        p.name?.toLowerCase().includes(query) ||
-        p.sku?.toLowerCase().includes(query)
-    );
-  }, [products, searchQuery]);
+    let result = products;
+
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase().trim();
+      result = result.filter(
+        (p) =>
+          p.name?.toLowerCase().includes(query) ||
+          p.sku?.toLowerCase().includes(query)
+      );
+    }
+
+    if (selectedCategory) {
+      result = result.filter(
+        (p) => p.category?.toLowerCase().trim() === selectedCategory.toLowerCase().trim()
+      );
+    }
+
+    if (selectedStockStatus) {
+      if (selectedStockStatus === 'in_stock') {
+        result = result.filter((p) => p.quantity > 0);
+      } else if (selectedStockStatus === 'out_of_stock') {
+        result = result.filter((p) => p.quantity === 0);
+      }
+    }
+
+    return result;
+  }, [products, searchQuery, selectedCategory, selectedStockStatus]);
 
   const handleOpenAddForm = useCallback(() => {
     setSelectedProduct(null);
@@ -111,43 +141,33 @@ export default function Products() {
       <EntityPage
         title="Products Inventory"
         description="Manage inventory items, SKU codes, pricing, stock quantities, and tracking thresholds."
-        searchPlaceholder="Search products by name or SKU..."
-        searchValue={searchQuery}
-        onSearchChange={handleSearchChange}
         actionLabel="Add Product"
         actionIcon={<AddIcon />}
         onActionClick={handleOpenAddForm}
         isEmpty={products.length === 0}
         emptyText="No products found. Click 'Add Product' above to create your first inventory item."
       >
+        <ProductFilterToolbar
+          searchQuery={searchQuery}
+          onSearchChange={handleSearchChange}
+          selectedCategory={selectedCategory}
+          onCategoryChange={setSelectedCategory}
+          selectedStockStatus={selectedStockStatus}
+          onStockStatusChange={setSelectedStockStatus}
+          categories={categories}
+          totalProductsCount={products.length}
+          filteredProductsCount={filteredProducts.length}
+          viewMode={viewMode}
+          onViewModeChange={handleViewModeChange}
+          onExportCSV={handleExportCSV}
+          productsCount={products.length}
+        />
         <ProductList
           products={filteredProducts}
+          viewMode={viewMode}
           onEdit={handleOpenEditForm}
           onDelete={handleOpenDelete}
           onAdjustStock={handleOpenAdjust}
-          extraHeaderActions={
-            <Button
-              variant="outlined"
-              color="inherit"
-              startIcon={<ExportIcon />}
-              onClick={handleExportCSV}
-              disabled={products.length === 0}
-              sx={{
-                borderRadius: 2,
-                borderColor: 'divider',
-                color: 'text.secondary',
-                fontWeight: 600,
-                textTransform: 'none',
-                height: 36,
-                '&:hover': {
-                  borderColor: 'text.primary',
-                  bgcolor: 'action.hover',
-                },
-              }}
-            >
-              Export CSV
-            </Button>
-          }
         />
       </EntityPage>
 
