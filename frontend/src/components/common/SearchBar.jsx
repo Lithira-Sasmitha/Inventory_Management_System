@@ -1,18 +1,23 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { Box, InputBase } from '@mui/material';
 import { Search as SearchIcon } from '@mui/icons-material';
 
 export default function SearchBar({ placeholder = 'Search...', value, onChange, delay = 350 }) {
   const [localValue, setLocalValue] = useState(value);
+  const lastPropagatedValue = useRef(value);
 
   useEffect(() => {
-    setLocalValue(value);
+    if (value !== lastPropagatedValue.current) {
+      setLocalValue(value);
+      lastPropagatedValue.current = value;
+    }
   }, [value]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
       if (localValue !== value) {
+        lastPropagatedValue.current = localValue;
         onChange({ target: { value: localValue } });
       }
     }, delay);
