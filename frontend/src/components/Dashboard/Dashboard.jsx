@@ -13,33 +13,26 @@ import CategoryChart from './CategoryChart';
 import StockLevelChart from './StockLevelChart';
 import LowStockAlerts from './LowStockAlerts';
 import PageHeader from '../common/PageHeader/PageHeader';
-import useSearch from '../../hooks/useSearch';
+import { useNavigate } from 'react-router-dom';
 
 export default function Dashboard() {
   const { products, categories } = useInventory();
-  const { searchQuery, handleSearchChange } = useSearch();
+  const navigate = useNavigate();
 
   const handleAddProduct = useCallback(() => {
-    console.log('Action Triggered: Open Add Product Modal or Navigate to Create view');
-    alert('Add Product button clicked!');
-  }, []);
+    navigate('/products', { state: { openAddForm: true } });
+  }, [navigate]);
 
-  const filteredProducts = useMemo(() => {
-    if (!searchQuery) return products;
-    const query = searchQuery.toLowerCase().trim();
-    return products.filter(
-      (p) =>
-        p.name?.toLowerCase().includes(query) ||
-        p.sku?.toLowerCase().includes(query)
-    );
-  }, [products, searchQuery]);
+  const handleSearchChange = useCallback((e) => {
+    navigate(`/products?search=${encodeURIComponent(e.target.value)}`);
+  }, [navigate]);
 
-  const totalProducts = filteredProducts.length;
+  const totalProducts = products.length;
   const totalCategories = categories.length;
 
   const totalValue = useMemo(() => {
-    return filteredProducts.reduce((acc, p) => acc + p.price * p.quantity, 0);
-  }, [filteredProducts]);
+    return products.reduce((acc, p) => acc + p.price * p.quantity, 0);
+  }, [products]);
 
   const formattedValue = useMemo(() => {
     if (totalValue >= 1000) {
@@ -53,12 +46,12 @@ export default function Dashboard() {
   }, [totalValue]);
 
   const outOfStock = useMemo(() => {
-    return filteredProducts.filter((p) => p.quantity === 0).length;
-  }, [filteredProducts]);
+    return products.filter((p) => p.quantity === 0).length;
+  }, [products]);
 
   const pieData = useMemo(() => {
     const categoryCounts = {};
-    filteredProducts.forEach((p) => {
+    products.forEach((p) => {
       const cat = p.category || 'Uncategorized';
       categoryCounts[cat] = (categoryCounts[cat] || 0) + 1;
     });
@@ -66,27 +59,27 @@ export default function Dashboard() {
       name: catName,
       value: categoryCounts[catName],
     }));
-  }, [filteredProducts]);
+  }, [products]);
 
   const barData = useMemo(() => {
-    return [...filteredProducts]
+    return [...products]
       .sort((a, b) => b.quantity - a.quantity)
       .slice(0, 10)
       .map((p) => ({
         name: p.name,
         stock: p.quantity,
       }));
-  }, [filteredProducts]);
+  }, [products]);
 
   const lowStockAlerts = useMemo(() => {
-    return filteredProducts.filter((p) => p.quantity <= p.minStock);
-  }, [filteredProducts]);
+    return products.filter((p) => p.quantity <= p.minStock);
+  }, [products]);
 
   return (
     <Box>
       <PageHeader
         searchPlaceholder="Search products by name or SKU..."
-        searchValue={searchQuery}
+        searchValue=""
         onSearchChange={handleSearchChange}
         actionLabel="Add Product"
         actionIcon={<AddIcon />}

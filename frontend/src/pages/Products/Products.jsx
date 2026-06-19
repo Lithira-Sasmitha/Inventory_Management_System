@@ -16,10 +16,17 @@ import ProductList from '../../components/Products/ProductList';
 import StockModal from '../../components/Products/StockModal';
 import exportProductsToCSV from '../../utils/csvExport';
 import ProductFilterToolbar from '../../components/Products/ProductFilterToolbar';
+import { useLocation, useSearchParams, useNavigate } from 'react-router-dom';
 
 export default function Products() {
   const { products, categories, addProduct, updateProduct, deleteProduct, adjustStock } = useInventory();
-  const { searchQuery, handleSearchChange } = useSearch();
+
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const initialSearch = searchParams.get('search') || '';
+
+  const { searchQuery, handleSearchChange, setSearchQuery } = useSearch(initialSearch);
 
   const [selectedCategory, setSelectedCategory] = useState('');
   const [selectedStockStatus, setSelectedStockStatus] = useState('');
@@ -71,6 +78,20 @@ export default function Products() {
     setSelectedProduct(null);
     setFormOpen(true);
   }, []);
+
+  React.useEffect(() => {
+    if (location.state?.openAddForm) {
+      handleOpenAddForm();
+      navigate(location.pathname, { replace: true, state: {} });
+    }
+  }, [location.state, handleOpenAddForm, navigate, location.pathname]);
+
+  React.useEffect(() => {
+    const q = searchParams.get('search') || '';
+    if (q !== searchQuery) {
+      setSearchQuery(q);
+    }
+  }, [searchParams, searchQuery, setSearchQuery]);
 
   const handleOpenEditForm = useCallback((product) => {
     setSelectedProduct(product);
