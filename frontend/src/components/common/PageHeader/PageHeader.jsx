@@ -1,7 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Box, InputBase, Button } from '@mui/material';
+import { Box, InputBase } from '@mui/material';
 import { Search as SearchIcon } from '@mui/icons-material';
+import ActionButton from '../ActionButton';
 
 const STYLES = {
   header: {
@@ -46,17 +47,6 @@ const STYLES = {
       opacity: 0.7,
     },
   },
-  actionButton: {
-    borderRadius: '10px',
-    px: 3,
-    py: 1.2,
-    fontSize: '0.875rem',
-    fontWeight: 600,
-    boxShadow: '0 4px 12px rgba(79, 70, 229, 0.2)',
-    '&:hover': {
-      boxShadow: '0 6px 16px rgba(79, 70, 229, 0.3)',
-    },
-  },
 };
 
 const PageHeader = React.memo(({
@@ -95,16 +85,11 @@ const PageHeader = React.memo(({
       )}
 
       {hasAction ? (
-        <Button
-          variant="contained"
-          color="primary"
+        <ActionButton
+          label={actionLabel}
+          icon={actionIcon}
           onClick={onActionClick}
-          startIcon={actionIcon}
-          sx={STYLES.actionButton}
-          aria-label={actionLabel}
-        >
-          {actionLabel}
-        </Button>
+        />
       ) : null}
     </Box>
   );
