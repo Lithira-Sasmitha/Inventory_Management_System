@@ -72,6 +72,7 @@ export default function Layout({ children }) {
           width: { md: `calc(100% - ${DRAWER_WIDTH}px)` },
           mt: { xs: '56px', md: 0 },
           transition: 'all 0.2s ease-in-out',
+          overflowX: 'hidden',
         }}
       >
         {/* Scrollable Main Content Container */}

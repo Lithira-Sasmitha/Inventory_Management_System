@@ -27,8 +27,8 @@ export default function EntityPage({
         onActionClick={onActionClick}
       />
 
-      <Box sx={{ p: { xs: 3, sm: 4 } }}>
-        <Paper sx={{ p: 4, borderRadius: 3 }}>
+      <Box sx={{ p: { xs: 2, sm: 3, md: 4 } }}>
+        <Paper sx={{ p: { xs: 2.5, sm: 4 }, borderRadius: 3 }}>
           <Typography variant="h5" gutterBottom color="primary" sx={{ fontWeight: 700 }}>
             {title}
           </Typography>
