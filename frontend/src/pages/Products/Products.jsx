@@ -9,7 +9,6 @@ import {
 
 import EntityPage from '../../components/common/EntityPage/EntityPage';
 import DeleteConfirm from '../../components/Products/DeleteConfirm';
-import useSearch from '../../hooks/useSearch';
 import { useInventory } from '../../context/InventoryContext';
 import ProductForm from '../../components/Products/ProductForm';
 import ProductList from '../../components/Products/ProductList';
@@ -23,10 +22,19 @@ export default function Products() {
 
   const location = useLocation();
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  const initialSearch = searchParams.get('search') || '';
+  const [searchParams, setSearchParams] = useSearchParams();
+  const searchQuery = searchParams.get('search') || '';
 
-  const { searchQuery, handleSearchChange, setSearchQuery } = useSearch(initialSearch);
+  const handleSearchChange = useCallback((e) => {
+    const value = e.target.value;
+    const newParams = new URLSearchParams(searchParams);
+    if (value) {
+      newParams.set('search', value);
+    } else {
+      newParams.delete('search');
+    }
+    setSearchParams(newParams);
+  }, [searchParams, setSearchParams]);
 
   const [selectedCategory, setSelectedCategory] = useState('');
   const [selectedStockStatus, setSelectedStockStatus] = useState('');
@@ -86,12 +94,7 @@ export default function Products() {
     }
   }, [location.state, handleOpenAddForm, navigate, location.pathname]);
 
-  React.useEffect(() => {
-    const q = searchParams.get('search') || '';
-    if (q !== searchQuery) {
-      setSearchQuery(q);
-    }
-  }, [searchParams, searchQuery, setSearchQuery]);
+
 
   const handleOpenEditForm = useCallback((product) => {
     setSelectedProduct(product);
