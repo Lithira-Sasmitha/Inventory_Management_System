@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Box, Paper, Typography } from '@mui/material';
+import { Box, Paper, Typography, Button } from '@mui/material';
 import PageHeader from '../PageHeader/PageHeader';
 
 export default function EntityPage({
@@ -22,21 +22,56 @@ export default function EntityPage({
         searchPlaceholder={searchPlaceholder}
         searchValue={searchValue}
         onSearchChange={onSearchChange}
-        actionLabel={actionLabel}
-        actionIcon={actionIcon}
-        onActionClick={onActionClick}
       />
 
-      <Box sx={{ p: { xs: 2, sm: 3, md: 4 } }}>
-        <Paper sx={{ p: { xs: 2.5, sm: 4 }, borderRadius: 3 }}>
-          <Typography variant="h5" gutterBottom color="primary" sx={{ fontWeight: 700 }}>
-            {title}
-          </Typography>
-          {description && (
-            <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
-              {description}
-            </Typography>
-          )}
+      <Box sx={{ p: { xs: 1.5, sm: 2, md: 4 } }}>
+        <Paper sx={{ p: { xs: 2, sm: 3, md: 4 }, borderRadius: 3 }}>
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: { xs: 'column', sm: 'row' },
+              justifyContent: 'space-between',
+              alignItems: { xs: 'flex-start', sm: 'center' },
+              gap: 2,
+              mb: 3,
+            }}
+          >
+            <Box>
+              <Typography variant="h5" color="primary" sx={{ fontWeight: 700, mb: 0.5 }}>
+                {title}
+              </Typography>
+              {description && (
+                <Typography variant="body1" color="text.secondary">
+                  {description}
+                </Typography>
+              )}
+            </Box>
+
+            {actionLabel && onActionClick && (
+              <Box sx={{ alignSelf: { xs: 'stretch', sm: 'auto' } }}>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  startIcon={actionIcon}
+                  onClick={onActionClick}
+                  fullWidth
+                  sx={{
+                    borderRadius: 2,
+                    fontWeight: 600,
+                    textTransform: 'none',
+                    height: 40,
+                    px: 3,
+                    boxShadow: '0 4px 12px rgba(79, 70, 229, 0.2)',
+                    '&:hover': {
+                      boxShadow: '0 6px 16px rgba(79, 70, 229, 0.3)',
+                    },
+                  }}
+                >
+                  {actionLabel}
+                </Button>
+              </Box>
+            )}
+          </Box>
 
           {isEmpty ? (
             <Box sx={{ p: 3, textAlign: 'center', color: 'text.secondary' }}>

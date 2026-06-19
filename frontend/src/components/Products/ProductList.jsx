@@ -3,17 +3,9 @@ import PropTypes from 'prop-types';
 import {
   Box,
   Grid,
-  Stack,
   TablePagination,
-  ToggleButton,
-  ToggleButtonGroup,
-  Tooltip,
   Typography,
 } from '@mui/material';
-import {
-  ViewList as ViewListIcon,
-  GridView as GridViewIcon,
-} from '@mui/icons-material';
 import { useInventory } from '../../context/InventoryContext';
 import ProductTable from './ProductTable';
 import ProductCard from './ProductCard';
@@ -23,16 +15,12 @@ import ConfirmDialog from '../common/ConfirmDialog';
 
 export default function ProductList({
   products = [],
+  viewMode,
   onEdit,
   onDelete,
   onAdjustStock,
-  extraHeaderActions = null,
 }) {
   const { deleteProducts, bulkAdjustStock } = useInventory();
-
-  const [viewMode, setViewMode] = useState(
-    () => localStorage.getItem('product_view_mode') || 'table'
-  );
 
   const [selectedIds, setSelectedIds] = useState([]);
 
@@ -68,12 +56,6 @@ export default function ProductList({
   const isSomePageSelected =
     paginatedIds.some((id) => selectedIds.includes(id)) && !isAllPageSelected;
 
-  const handleViewModeChange = useCallback((event, nextView) => {
-    if (nextView !== null) {
-      setViewMode(nextView);
-      localStorage.setItem('product_view_mode', nextView);
-    }
-  }, []);
 
   const handleChangePage = useCallback((event, newPage) => {
     setPage(newPage);
@@ -120,18 +102,18 @@ export default function ProductList({
 
   return (
     <Box>
-      <Box
-        sx={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          mb: 3,
-          flexWrap: 'wrap',
-          gap: 2,
-          minHeight: 48,
-        }}
-      >
-        {selectedIds.length > 0 ? (
+      {selectedIds.length > 0 && (
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            mb: 3,
+            flexWrap: 'wrap',
+            gap: 2,
+            minHeight: 48,
+          }}
+        >
           <BulkActionsToolbar
             selectedCount={selectedIds.length}
             isAllPageSelected={isAllPageSelected}
@@ -140,53 +122,8 @@ export default function ProductList({
             onRestockClick={() => setBulkRestockOpen(true)}
             onDeleteClick={() => setBulkDeleteOpen(true)}
           />
-        ) : (
-          <>
-            <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 500 }}>
-              Showing {products.length} product{products.length === 1 ? '' : 's'}
-            </Typography>
-            <Stack direction="row" spacing={2} alignItems="center">
-              {extraHeaderActions}
-              <ToggleButtonGroup
-                value={viewMode}
-                exclusive
-                onChange={handleViewModeChange}
-                aria-label="view mode toggle"
-                size="small"
-                sx={{
-                  bgcolor: 'action.hover',
-                  borderRadius: 2.5,
-                  p: 0.5,
-                  border: '1px solid',
-                  borderColor: 'divider',
-                  '& .MuiToggleButtonGroup-grouped': {
-                    border: 0,
-                    borderRadius: 1.75,
-                    mx: 0.25,
-                    px: 1.5,
-                    '&.Mui-selected': {
-                      bgcolor: 'primary.main',
-                      color: 'primary.contrastText',
-                      '&:hover': { bgcolor: 'primary.dark' },
-                    },
-                  },
-                }}
-              >
-                <ToggleButton value="table" aria-label="table view">
-                  <Tooltip title="Table View">
-                    <ViewListIcon fontSize="small" />
-                  </Tooltip>
-                </ToggleButton>
-                <ToggleButton value="card" aria-label="card view">
-                  <Tooltip title="Card View">
-                    <GridViewIcon fontSize="small" />
-                  </Tooltip>
-                </ToggleButton>
-              </ToggleButtonGroup>
-            </Stack>
-          </>
-        )}
-      </Box>
+        </Box>
+      )}
 
       {products.length === 0 ? (
         <Box
@@ -289,8 +226,8 @@ ProductList.propTypes = {
       minStock: PropTypes.number.isRequired,
     })
   ).isRequired,
+  viewMode: PropTypes.string.isRequired,
   onEdit: PropTypes.func.isRequired,
   onDelete: PropTypes.func.isRequired,
   onAdjustStock: PropTypes.func.isRequired,
-  extraHeaderActions: PropTypes.node,
 };
