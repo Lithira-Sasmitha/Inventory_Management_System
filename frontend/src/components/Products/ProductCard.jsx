@@ -14,6 +14,7 @@ import {
 } from '@mui/material';
 import { getStockStatus, getStockPercent } from '../../utils/stockStatus';
 import ProductActionButtons from './ProductActionButtons';
+import CategoryChip from '../Categories/CategoryChip';
 
 export default function ProductCard({ product, isSelected, onSelect, onEdit, onDelete, onAdjustStock }) {
   const status = getStockStatus(product.quantity, product.minStock);
@@ -71,18 +72,7 @@ export default function ProductCard({ product, isSelected, onSelect, onEdit, onD
             >
               {product.sku}
             </Typography>
-            <Chip
-              label={product.category}
-              size="small"
-              variant="outlined"
-              sx={{
-                fontSize: '0.75rem',
-                fontWeight: 600,
-                borderColor: 'divider',
-                color: 'text.secondary',
-                height: 24,
-              }}
-            />
+            <CategoryChip label={product.category} />
           </Stack>
           <Checkbox
             checked={isSelected}
