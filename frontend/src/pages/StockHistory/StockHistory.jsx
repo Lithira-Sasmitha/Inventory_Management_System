@@ -1,17 +1,19 @@
 import React from 'react';
-import { Box, Paper, Typography } from '@mui/material';
+import EntityPage from '../../components/common/EntityPage/EntityPage';
+import { useInventory } from '../../context/InventoryContext';
+import StockHistoryLog from '../../components/StockHistory/StockHistory';
 
 export default function StockHistory() {
+  const { products, stockHistory } = useInventory();
+
   return (
-    <Box sx={{ p: { xs: 3, sm: 4 } }}>
-      <Paper sx={{ p: 4, borderRadius: 3 }}>
-        <Typography variant="h5" gutterBottom color="primary" sx={{ fontWeight: 700 }}>
-          Stock Ledger & Audit Logs
-        </Typography>
-        <Typography variant="body1" color="text.secondary">
-          Track transaction history, stock adjustments, intake logs, and shipment records.
-        </Typography>
-      </Paper>
-    </Box>
+    <EntityPage
+      title="Stock History Ledger"
+      description="Chronological audit logs of all inventory items adjustments, restocks, and sales transactions."
+      isEmpty={stockHistory.length === 0}
+      emptyText="No transaction ledger entries found. Perform restocks or sales on the Products page to see logs here."
+    >
+      <StockHistoryLog products={products} stockHistory={stockHistory} />
+    </EntityPage>
   );
 }
