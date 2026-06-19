@@ -1,14 +1,11 @@
-import React, { useState, useCallback } from 'react';
-import { Box, Paper, Typography } from '@mui/material';
+import React, { useCallback } from 'react';
+import { Box, Typography } from '@mui/material';
 import { Add as AddIcon } from '@mui/icons-material';
-import PageHeader from '../../components/common/PageHeader/PageHeader';
+import EntityPage from '../../components/common/EntityPage/EntityPage';
+import useSearch from '../../hooks/useSearch';
 
 export default function Products() {
-  const [searchQuery, setSearchQuery] = useState('');
-
-  const handleSearchChange = useCallback((e) => {
-    setSearchQuery(e.target.value);
-  }, []);
+  const { searchQuery, handleSearchChange } = useSearch();
 
   const handleAddProduct = useCallback(() => {
     console.log('Action Triggered: Open Add Product Modal or Navigate to Create view');
@@ -16,32 +13,22 @@ export default function Products() {
   }, []);
 
   return (
-    <Box>
-      <PageHeader
-        searchPlaceholder="Search products by name or SKU..."
-        searchValue={searchQuery}
-        onSearchChange={handleSearchChange}
-        actionLabel="Add Product"
-        actionIcon={<AddIcon />}
-        onActionClick={handleAddProduct}
-      />
-
-      <Box sx={{ p: { xs: 3, sm: 4 } }}>
-        <Paper sx={{ p: 4, borderRadius: 3 }}>
-          <Typography variant="h5" gutterBottom color="primary" sx={{ fontWeight: 700 }}>
-            Products Inventory
-          </Typography>
-          <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
-            Manage inventory items, barcodes, warehouses, and tracking alerts.
-          </Typography>
-          
-          <Box sx={{ p: 2, bgcolor: 'action.hover', borderRadius: 2, border: '1px dashed', borderColor: 'divider' }}>
-            <Typography variant="body2" color="text.primary" sx={{ fontStyle: 'italic' }}>
-              Active Search Query: {searchQuery ? `"${searchQuery}"` : 'None (showing all products)'}
-            </Typography>
-          </Box>
-        </Paper>
+    <EntityPage
+      title="Products Inventory"
+      description="Manage inventory items, barcodes, warehouses, and tracking alerts."
+      searchPlaceholder="Search products by name or SKU..."
+      searchValue={searchQuery}
+      onSearchChange={handleSearchChange}
+      actionLabel="Add Product"
+      actionIcon={<AddIcon />}
+      onActionClick={handleAddProduct}
+    >
+      <Box sx={{ p: 2, bgcolor: 'action.hover', borderRadius: 2, border: '1px dashed', borderColor: 'divider' }}>
+        <Typography variant="body2" color="text.primary" sx={{ fontStyle: 'italic' }}>
+          Active Search Query: {searchQuery ? `"${searchQuery}"` : 'None (showing all products)'}
+        </Typography>
       </Box>
-    </Box>
+    </EntityPage>
   );
 }
+
