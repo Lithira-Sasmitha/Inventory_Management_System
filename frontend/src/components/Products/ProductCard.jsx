@@ -10,6 +10,7 @@ import {
   LinearProgress,
   Stack,
   Typography,
+  Tooltip,
 } from '@mui/material';
 import { getStockStatus, getStockPercent } from '../../utils/stockStatus';
 import ProductActionButtons from './ProductActionButtons';
@@ -25,86 +26,98 @@ export default function ProductCard({ product, isSelected, onSelect, onEdit, onD
         border: '1px solid',
         borderColor: isSelected ? 'primary.main' : 'divider',
         position: 'relative',
-        transition: 'all 0.25s ease-in-out',
+        transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
         bgcolor: isSelected
           ? (theme) =>
               theme.palette.mode === 'light'
-                ? 'rgba(79, 70, 229, 0.02)'
-                : 'rgba(99, 102, 241, 0.04)'
+                ? 'rgba(79, 70, 229, 0.03)'
+                : 'rgba(99, 102, 241, 0.06)'
           : 'background.paper',
+        boxShadow: isSelected
+          ? (theme) =>
+              theme.palette.mode === 'light'
+                ? '0 0 0 1px #4f46e5, 0 8px 20px rgba(79, 70, 229, 0.08)'
+                : '0 0 0 1px #6366f1, 0 8px 20px rgba(99, 102, 241, 0.12)'
+          : 'none',
         '&:hover': {
           transform: 'translateY(-4px)',
-          boxShadow: '0 8px 24px rgba(0, 0, 0, 0.06)',
+          boxShadow: isSelected
+            ? (theme) =>
+                theme.palette.mode === 'light'
+                  ? '0 0 0 1px #4f46e5, 0 12px 28px rgba(79, 70, 229, 0.12)'
+                  : '0 0 0 1px #6366f1, 0 12px 28px rgba(99, 102, 241, 0.16)'
+            : '0 8px 24px rgba(0, 0, 0, 0.06)',
           borderColor: isSelected ? 'primary.main' : 'primary.light',
         },
       }}
     >
-      <Checkbox
-        checked={isSelected}
-        onChange={() => onSelect(product.id)}
-        color="primary"
-        sx={{
-          position: 'absolute',
-          top: 12,
-          right: 12,
-          zIndex: 10,
-          bgcolor: isSelected ? 'transparent' : 'rgba(255, 255, 255, 0.6)',
-          backdropFilter: 'blur(4px)',
-          borderRadius: 1.5,
-          '&:hover': { bgcolor: 'action.hover' },
-        }}
-      />
-
-      <CardContent sx={{ pt: 3.5, pb: 1.5, px: 3 }}>
-        <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 1.5 }}>
-          <Typography
-            variant="caption"
+      <CardContent sx={{ pt: 3, pb: 1.5, px: 3 }}>
+        <Stack direction="row" spacing={1} alignItems="center" justifyContent="space-between" sx={{ mb: 1.5 }}>
+          <Stack direction="row" spacing={1} alignItems="center" sx={{ minWidth: 0, flexWrap: 'wrap', gap: 0.75 }}>
+            <Typography
+              variant="caption"
+              sx={{
+                fontFamily: 'monospace',
+                fontWeight: 700,
+                color: 'text.secondary',
+                bgcolor: 'action.hover',
+                py: 0.5,
+                px: 1,
+                borderRadius: 1.5,
+                border: '1px solid',
+                borderColor: 'divider',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              {product.sku}
+            </Typography>
+            <Chip
+              label={product.category}
+              size="small"
+              variant="outlined"
+              sx={{
+                fontSize: '0.75rem',
+                fontWeight: 600,
+                borderColor: 'divider',
+                color: 'text.secondary',
+                height: 24,
+              }}
+            />
+          </Stack>
+          <Checkbox
+            checked={isSelected}
+            onChange={() => onSelect(product.id)}
+            color="primary"
             sx={{
-              fontFamily: 'monospace',
-              fontWeight: 700,
-              color: 'text.secondary',
-              bgcolor: 'action.hover',
-              py: 0.5,
-              px: 1,
-              borderRadius: 1.5,
-              border: '1px solid',
-              borderColor: 'divider',
-            }}
-          >
-            {product.sku}
-          </Typography>
-          <Chip
-            label={product.category}
-            size="small"
-            variant="outlined"
-            sx={{
-              fontSize: '0.75rem',
-              fontWeight: 600,
-              borderColor: 'divider',
-              color: 'text.secondary',
+              p: 0.5,
+              borderRadius: 1,
+              flexShrink: 0,
+              '&:hover': { bgcolor: 'action.hover' },
             }}
           />
         </Stack>
 
-        <Typography
-          variant="h6"
-          component="div"
-          sx={{
-            fontWeight: 700,
-            lineHeight: 1.3,
-            mb: 1.5,
-            color: 'text.primary',
-            pr: 4,
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            display: '-webkit-box',
-            WebkitLineClamp: 2,
-            WebkitBoxOrient: 'vertical',
-            height: 48,
-          }}
-        >
-          {product.name}
-        </Typography>
+        <Tooltip title={product.name} enterDelay={500} arrow>
+          <Typography
+            variant="h6"
+            component="div"
+            sx={{
+              fontWeight: 700,
+              lineHeight: 1.3,
+              mb: 1.5,
+              color: 'text.primary',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              display: '-webkit-box',
+              WebkitLineClamp: 2,
+              WebkitBoxOrient: 'vertical',
+              height: 48,
+              cursor: 'default',
+            }}
+          >
+            {product.name}
+          </Typography>
+        </Tooltip>
 
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', mb: 2 }}>
           <Typography variant="h5" color="primary.main" sx={{ fontWeight: 800 }}>
