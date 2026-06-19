@@ -10,7 +10,7 @@ import {
 } from '@mui/icons-material';
 
 import EntityPage from '../../components/common/EntityPage/EntityPage';
-import ConfirmDialog from '../../components/common/ConfirmDialog';
+import DeleteConfirm from '../../components/Products/DeleteConfirm';
 import useSearch from '../../hooks/useSearch';
 import { useInventory } from '../../context/InventoryContext';
 import ProductForm from '../../components/Products/ProductForm';
@@ -177,19 +177,11 @@ export default function Products() {
         onSubmit={handleAdjustSubmit}
       />
 
-      <ConfirmDialog
+      <DeleteConfirm
         open={deleteOpen}
         onClose={handleDeleteClose}
         onConfirm={handleDeleteConfirm}
-        title="Delete Product"
-        message={
-          <>
-            Are you sure you want to delete <strong>{selectedProduct?.name}</strong>?
-            This will permanently remove the item from the system and cannot be undone.
-          </>
-        }
-        confirmLabel="Delete"
-        confirmColor="error"
+        productName={selectedProduct?.name || ''}
       />
     </>
   );
