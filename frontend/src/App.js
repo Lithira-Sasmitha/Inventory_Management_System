@@ -1,28 +1,28 @@
-import logo from './logo.svg';
-import './App.css';
+import React from 'react';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import Layout from './components/Layout/Layout';
+import Dashboard from './pages/Dashboard/Dashboard';
+import Products from './pages/Products/Products';
+import Categories from './pages/Categories/Categories';
+import StockHistory from './pages/StockHistory/StockHistory';
+import { InventoryProvider } from './context/InventoryContext';
 
 function App() {
   return (
-    <div className="App min-h-screen bg-slate-900 text-white flex flex-col items-center justify-center">
-      <header className="App-header flex flex-col items-center gap-4">
-        <img src={logo} className="App-logo h-40 pointer-events-none" alt="logo" />
-        <h1 className="text-4xl font-extrabold text-sky-400 drop-shadow-md">
-          Tailwind CSS v3 configured!
-        </h1>
-        <p className="text-slate-300">
-          Edit <code className="bg-slate-800 px-2 py-1 rounded text-pink-400">src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="text-sky-400 hover:text-sky-300 underline transition"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <InventoryProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Layout />}>
+            <Route index element={<Dashboard />} />
+            <Route path="products" element={<Products />} />
+            <Route path="categories" element={<Categories />} />
+            <Route path="stock-history" element={<StockHistory />} />
+          </Route>
+        </Routes>
+      </BrowserRouter>
+    </InventoryProvider>
   );
 }
 
 export default App;
+
