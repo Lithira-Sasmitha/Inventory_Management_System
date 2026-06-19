@@ -2,7 +2,7 @@ import React, { useMemo, useCallback } from 'react';
 import { Grid, Box, Typography } from '@mui/material';
 import {
   Inventory2Outlined as ProductsIcon,
-  AttachMoney as MoneyIcon,
+  AccountBalanceWalletOutlined as MoneyIcon,
   WarningAmber as OutOfStockIcon,
   CategoryOutlined as CategoriesIcon,
   Add as AddIcon,
@@ -40,6 +40,17 @@ export default function Dashboard() {
   const totalValue = useMemo(() => {
     return filteredProducts.reduce((acc, p) => acc + p.price * p.quantity, 0);
   }, [filteredProducts]);
+
+  const formattedValue = useMemo(() => {
+    if (totalValue >= 1000) {
+      return `$${Math.round(totalValue).toLocaleString()}`;
+    }
+    return `$${totalValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  }, [totalValue]);
+
+  const rawValue = useMemo(() => {
+    return `$${totalValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  }, [totalValue]);
 
   const outOfStock = useMemo(() => {
     return filteredProducts.filter((p) => p.quantity === 0).length;
@@ -98,7 +109,8 @@ export default function Dashboard() {
           <Grid item xs={12} sm={6} md={3}>
             <StatCard
               title="Inventory Value"
-              value={`$${totalValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+              value={formattedValue}
+              rawValue={rawValue}
               icon={<MoneyIcon />}
               color="success.main"
             />
