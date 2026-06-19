@@ -162,11 +162,11 @@ export default function Products() {
       <EntityPage
         title="Products Inventory"
         description="Manage inventory items, SKU codes, pricing, stock quantities, and tracking thresholds."
+        isEmpty={products.length === 0}
+        emptyText="No products found. Click 'Add Product' below to create your first inventory item."
         actionLabel="Add Product"
         actionIcon={<AddIcon />}
         onActionClick={handleOpenAddForm}
-        isEmpty={products.length === 0}
-        emptyText="No products found. Click 'Add Product' above to create your first inventory item."
       >
         <ProductFilterToolbar
           searchQuery={searchQuery}
