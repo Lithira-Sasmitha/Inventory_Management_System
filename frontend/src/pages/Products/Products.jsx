@@ -3,17 +3,11 @@ import {
   Button,
   Dialog,
   DialogContent,
-  DialogContentText,
-  DialogTitle,
-  DialogActions,
-  MenuItem,
-  TextField,
 } from '@mui/material';
 import {
   Add as AddIcon,
   Download as ExportIcon,
 } from '@mui/icons-material';
-import { Formik, Form } from 'formik';
 
 import EntityPage from '../../components/common/EntityPage/EntityPage';
 import ConfirmDialog from '../../components/common/ConfirmDialog';
@@ -21,8 +15,8 @@ import useSearch from '../../hooks/useSearch';
 import { useInventory } from '../../context/InventoryContext';
 import ProductForm from '../../components/Products/ProductForm';
 import ProductList from '../../components/Products/ProductList';
+import StockModal from '../../components/Products/StockModal';
 import exportProductsToCSV from '../../utils/csvExport';
-import { stockAdjustmentSchema } from '../../utils/validation';
 
 export default function Products() {
   const { products, addProduct, updateProduct, deleteProduct, adjustStock } = useInventory();
@@ -81,12 +75,11 @@ export default function Products() {
   }, []);
 
   const handleAdjustSubmit = useCallback(
-    (values, { setSubmitting }) => {
+    (values) => {
       if (!selectedProduct) return;
       const qty = Number(values.quantity);
-      const amount = values.type === 'add' ? qty : -qty;
+      const amount = values.type === 'restock' ? qty : -qty;
       adjustStock(selectedProduct.id, amount, values.reason || 'Manual adjustment');
-      setSubmitting(false);
       handleAdjustClose();
     },
     [selectedProduct, adjustStock, handleAdjustClose]
@@ -177,96 +170,12 @@ export default function Products() {
         </DialogContent>
       </Dialog>
 
-      <Dialog
+      <StockModal
         open={adjustOpen}
         onClose={handleAdjustClose}
-        maxWidth="xs"
-        fullWidth
-        PaperProps={{
-          sx: { borderRadius: 3, p: 1 },
-        }}
-      >
-        <DialogTitle sx={{ fontWeight: 700, pb: 1 }}>Adjust Stock Level</DialogTitle>
-        <Formik
-          initialValues={{ type: 'add', quantity: '', reason: '' }}
-          validationSchema={stockAdjustmentSchema}
-          onSubmit={handleAdjustSubmit}
-        >
-          {({ values, errors, touched, handleChange, handleBlur, isSubmitting }) => (
-            <Form noValidate>
-              <DialogContent sx={{ py: 1 }}>
-                <DialogContentText variant="body2" sx={{ mb: 3 }}>
-                  Adjust inventory levels for{' '}
-                  <strong>{selectedProduct?.name}</strong> (Current Stock:{' '}
-                  {selectedProduct?.quantity}).
-                </DialogContentText>
-
-                <TextField
-                  select
-                  fullWidth
-                  name="type"
-                  label="Adjustment Type"
-                  value={values.type}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  sx={{ mb: 2.5 }}
-                >
-                  <MenuItem value="add">Add Stock (Receive / Restock)</MenuItem>
-                  <MenuItem value="remove">Remove Stock (Shipment / Damage)</MenuItem>
-                </TextField>
-
-                <TextField
-                  fullWidth
-                  name="quantity"
-                  label="Quantity"
-                  type="number"
-                  placeholder="e.g. 10"
-                  value={values.quantity}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  error={touched.quantity && Boolean(errors.quantity)}
-                  helperText={touched.quantity && errors.quantity}
-                  slotProps={{ htmlInput: { min: 1, step: 1 } }}
-                  sx={{ mb: 2.5 }}
-                />
-
-                <TextField
-                  fullWidth
-                  name="reason"
-                  label="Reason / Comments"
-                  placeholder="e.g. Damage report, supplier batch #12"
-                  multiline
-                  rows={2}
-                  value={values.reason}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  sx={{ mb: 1 }}
-                />
-              </DialogContent>
-              <DialogActions sx={{ px: 3, pb: 2, gap: 1.5 }}>
-                <Button
-                  onClick={handleAdjustClose}
-                  color="inherit"
-                  variant="outlined"
-                  disabled={isSubmitting}
-                  sx={{ borderRadius: 2, px: 3, fontWeight: 600 }}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  type="submit"
-                  color="secondary"
-                  variant="contained"
-                  disabled={isSubmitting}
-                  sx={{ borderRadius: 2, px: 3, fontWeight: 600 }}
-                >
-                  Apply
-                </Button>
-              </DialogActions>
-            </Form>
-          )}
-        </Formik>
-      </Dialog>
+        product={selectedProduct}
+        onSubmit={handleAdjustSubmit}
+      />
 
       <ConfirmDialog
         open={deleteOpen}
