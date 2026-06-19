@@ -3,15 +3,9 @@ import useLocalStorage from '../hooks/useLocalStorage';
 
 const InventoryContext = createContext(null);
 
-const DEFAULT_CATEGORIES = [
-  { id: 'cat-1', name: 'Electronics' },
-  { id: 'cat-2', name: 'Office Supplies' },
-  { id: 'cat-3', name: 'Accessories' },
-];
-
 export function InventoryProvider({ children }) {
   const [products, setProducts] = useLocalStorage('inventory_products', []);
-  const [categories, setCategories] = useLocalStorage('inventory_categories', DEFAULT_CATEGORIES);
+  const [categories, setCategories] = useLocalStorage('inventory_categories', []);
   const [stockHistory, setStockHistory] = useLocalStorage('inventory_stock_history', []);
 
 
@@ -110,8 +104,20 @@ export function InventoryProvider({ children }) {
   }, [setCategories]);
 
   const deleteCategory = useCallback((id) => {
-    setCategories((prev) => prev.filter((c) => c.id !== id));
-  }, [setCategories]);
+    setCategories((prevCategories) => {
+      const category = prevCategories.find((c) => c.id === id);
+      if (!category) return prevCategories;
+
+      const hasProducts = products.some(
+        (p) => p.category?.toLowerCase().trim() === category.name?.toLowerCase().trim()
+      );
+      if (hasProducts) {
+        return prevCategories;
+      }
+
+      return prevCategories.filter((c) => c.id !== id);
+    });
+  }, [setCategories, products]);
 
   const value = {
     products,

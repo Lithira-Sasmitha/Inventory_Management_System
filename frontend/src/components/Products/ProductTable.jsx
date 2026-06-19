@@ -13,6 +13,7 @@ import {
 } from '@mui/material';
 import { getStockStatus } from '../../utils/stockStatus';
 import ProductActionButtons from './ProductActionButtons';
+import CategoryChip from '../Categories/CategoryChip';
 
 export default function ProductTable({
   products,
@@ -92,7 +93,7 @@ export default function ProductTable({
                 <TableCell sx={{ fontWeight: 600, color: 'text.primary' }}>
                   {product.name}
                 </TableCell>
-                <TableCell>{product.category}</TableCell>
+                <TableCell><CategoryChip label={product.category} /></TableCell>
                 <TableCell align="right" sx={{ fontWeight: 600 }}>
                   ${product.price.toFixed(2)}
                 </TableCell>
