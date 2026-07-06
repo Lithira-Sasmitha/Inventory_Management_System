@@ -111,11 +111,27 @@ export default function Products() {
       if (selectedProduct) {
         updateProduct(selectedProduct.id, values);
       } else {
-        addProduct(values);
+        const existingProduct = products.find(
+          (product) =>
+            product.name?.trim().toLowerCase() === values.name?.trim().toLowerCase()
+        );
+
+        if (existingProduct) {
+          const incomingQty = Number(values.quantity) || 0;
+          const existingQty = Number(existingProduct.quantity) || 0;
+          updateProduct(existingProduct.id, {
+            ...values,
+            quantity: existingQty + incomingQty,
+            price: Number(values.price) || existingProduct.price || 0,
+            minStock: Number(values.minStock) || existingProduct.minStock || 0,
+          });
+        } else {
+          addProduct(values);
+        }
       }
       handleFormClose();
     },
-    [selectedProduct, addProduct, updateProduct, handleFormClose]
+    [selectedProduct, products, addProduct, updateProduct, handleFormClose]
   );
 
   const handleOpenAdjust = useCallback((product) => {
