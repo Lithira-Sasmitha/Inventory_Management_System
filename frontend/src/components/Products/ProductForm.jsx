@@ -1,7 +1,7 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { Formik, Form } from 'formik';
-import { Box, Button, Grid, Typography, Paper, Alert } from '@mui/material';
+import { Box, Button, Grid, Typography, Paper, Alert, List, ListItemButton, ListItemText } from '@mui/material';
 import { productSchema } from '../../utils/validation';
 import { useInventory } from '../../context/InventoryContext';
 import FormField from '../common/Form/FormField';
@@ -17,8 +17,10 @@ const generateSKU = () => {
 };
 
 export default function ProductForm({ product = null, onSubmit, onCancel }) {
-  const { categories } = useInventory();
+  const { categories, products } = useInventory();
   const isEdit = Boolean(product);
+  const [nameInput, setNameInput] = useState(product?.name || '');
+  const [showSuggestions, setShowSuggestions] = useState(false);
 
   const stableSku = useMemo(() => {
     if (isEdit && product?.sku) {
@@ -44,6 +46,39 @@ export default function ProductForm({ product = null, onSubmit, onCancel }) {
       label: cat.name,
     }));
   }, [categories]);
+
+  useEffect(() => {
+    setNameInput(product?.name || '');
+  }, [product]);
+
+  const existingProductsByName = useMemo(() => {
+    const map = new Map();
+    products.forEach((item) => {
+      if (item?.name) {
+        const normalizedName = item.name.trim().toLowerCase();
+        if (!map.has(normalizedName)) {
+          map.set(normalizedName, item);
+        }
+      }
+    });
+    return map;
+  }, [products]);
+
+  const existingProductNames = useMemo(() => {
+    return Array.from(existingProductsByName.keys()).map((key) => {
+      const productMatch = existingProductsByName.get(key);
+      return productMatch?.name?.trim() || key;
+    });
+  }, [existingProductsByName]);
+
+  const filteredSuggestions = useMemo(() => {
+    const trimmed = nameInput.trim().toLowerCase();
+    if (trimmed.length < 3) {
+      return [];
+    }
+
+    return existingProductNames.filter((item) => item.toLowerCase().includes(trimmed)).slice(0, 5);
+  }, [existingProductNames, nameInput]);
 
   const handleSubmit = (values, { setSubmitting }) => {
     const formattedValues = {
@@ -92,16 +127,71 @@ export default function ProductForm({ product = null, onSubmit, onCancel }) {
         onSubmit={handleSubmit}
         enableReinitialize
       >
-        {({ isSubmitting }) => (
+        {({ isSubmitting, values, setFieldValue }) => {
+          const trimmedName = (values.name || '').trim().toLowerCase();
+          const matchedExistingProduct = trimmedName.length >= 3
+            ? existingProductsByName.get(trimmedName) || Array.from(existingProductsByName.values()).find((item) =>
+                item?.name?.trim().toLowerCase().includes(trimmedName)
+              ) || null
+            : null;
+          const submitLabel = isEdit ? 'Save Changes' : matchedExistingProduct ? 'Update' : 'Add Product';
+
+          return (
           <Form noValidate>
             <Grid container spacing={3}>
               <Grid item xs={12} sm={6}>
-                <FormField
-                  name="name"
-                  label="Product Name"
-                  placeholder="e.g. Wireless Mouse"
-                  required
-                />
+                <Box sx={{ position: 'relative' }}>
+                  <FormField
+                    name="name"
+                    label="Product Name"
+                    placeholder="e.g. Wireless Mouse"
+                    required
+                    value={values.name}
+                    onChange={(event) => {
+                      const nextValue = event.target.value;
+                      setNameInput(nextValue);
+                      setShowSuggestions(true);
+                      setFieldValue('name', nextValue);
+                    }}
+                    onFocus={() => setShowSuggestions(true)}
+                    onBlur={() => window.setTimeout(() => setShowSuggestions(false), 120)}
+                  />
+                  {showSuggestions && filteredSuggestions.length > 0 && (
+                    <Paper
+                      elevation={3}
+                      sx={{
+                        position: 'absolute',
+                        zIndex: 3,
+                        width: '100%',
+                        mt: 0.5,
+                        borderRadius: 2,
+                        overflow: 'hidden',
+                      }}
+                    >
+                      <List dense sx={{ py: 0 }}>
+                        {filteredSuggestions.map((suggestion) => (
+                          <ListItemButton
+                            key={suggestion}
+                            onMouseDown={(event) => event.preventDefault()}
+                            onClick={() => {
+                              const matchedProduct = existingProductsByName.get(suggestion.trim().toLowerCase());
+                              setNameInput(suggestion);
+                              setFieldValue('name', suggestion, true);
+                              setFieldValue('category', matchedProduct?.category || '', true);
+                              setFieldValue('price', matchedProduct?.price ?? '', true);
+                              setFieldValue('quantity', matchedProduct?.quantity ?? '', true);
+                              setFieldValue('minStock', matchedProduct?.minStock ?? 5, true);
+                              setFieldValue('sku', matchedProduct?.sku || stableSku, true);
+                              setShowSuggestions(false);
+                            }}
+                          >
+                            <ListItemText primary={suggestion} />
+                          </ListItemButton>
+                        ))}
+                      </List>
+                    </Paper>
+                  )}
+                </Box>
               </Grid>
 
               <Grid item xs={12} sm={6}>
@@ -207,13 +297,14 @@ export default function ProductForm({ product = null, onSubmit, onCancel }) {
                       },
                     }}
                   >
-                    {isEdit ? 'Save Changes' : 'Add Product'}
+                    {submitLabel}
                   </Button>
                 </Box>
               </Grid>
             </Grid>
           </Form>
-        )}
+          );
+        }}
       </Formik>
     </Paper>
   );

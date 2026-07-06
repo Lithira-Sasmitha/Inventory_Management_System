@@ -10,14 +10,58 @@ export function InventoryProvider({ children }) {
 
 
   const addProduct = useCallback((productData) => {
-    const newProduct = {
-      ...productData,
-      id: crypto.randomUUID(),
-      quantity: Number(productData.quantity) || 0,
-      price: Number(productData.price) || 0,
-      minStock: Number(productData.minStock) || 0,
-    };
-    setProducts((prev) => [...prev, newProduct]);
+    const normalizedName = productData?.name?.trim().toLowerCase();
+    const incomingQty = Number(productData.quantity) || 0;
+    const incomingPrice = Number(productData.price) || 0;
+    const incomingMinStock = Number(productData.minStock) || 0;
+
+    setProducts((prev) => {
+      if (!normalizedName) {
+        const newProduct = {
+          ...productData,
+          id: crypto.randomUUID(),
+          quantity: incomingQty,
+          price: incomingPrice,
+          minStock: incomingMinStock,
+        };
+        return [newProduct, ...prev];
+      }
+
+      const matchingProducts = prev.filter(
+        (product) => product.name?.trim().toLowerCase() === normalizedName
+      );
+
+      if (matchingProducts.length > 0) {
+        const [primaryProduct, ...duplicateProducts] = matchingProducts;
+        const mergedQuantity = duplicateProducts.reduce(
+          (total, product) => total + (Number(product.quantity) || 0),
+          (Number(primaryProduct.quantity) || 0) + incomingQty
+        );
+
+        const mergedProduct = {
+          ...primaryProduct,
+          ...productData,
+          id: primaryProduct.id,
+          quantity: mergedQuantity,
+          price: incomingPrice || primaryProduct.price || 0,
+          minStock: incomingMinStock || primaryProduct.minStock || 0,
+        };
+
+        return prev
+          .filter((product) => product.id !== primaryProduct.id && !duplicateProducts.some((dup) => dup.id === product.id))
+          .concat(mergedProduct)
+          .sort((a, b) => a.name?.localeCompare(b.name) || 0);
+      }
+
+      const newProduct = {
+        ...productData,
+        id: crypto.randomUUID(),
+        quantity: incomingQty,
+        price: incomingPrice,
+        minStock: incomingMinStock,
+      };
+      return [newProduct, ...prev];
+    });
   }, [setProducts]);
 
   const updateProduct = useCallback((id, updatedFields) => {
